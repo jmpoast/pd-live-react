@@ -91,10 +91,8 @@ export const pdParallelFetch = async (endpoint, params, progressCallback) => {
           }
           if (progressCallback) {
             progressCallback(firstPage.total, fetchedData.length);
-          }        
-        // .catch((error) => {
-          // console.log(error);
-        // });
+          }
+        });
       promises.push(promise);
       requestParams.offset += requestParams.limit;
     }
