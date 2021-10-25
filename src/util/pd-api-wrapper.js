@@ -94,7 +94,7 @@ export const pdParallelFetch = async (endpoint, params, progressCallback) => {
           }
         })
         .catch((error) => {
-          console.log(error);
+          //console.log(error);
         });
       promises.push(promise);
       requestParams.offset += requestParams.limit;
