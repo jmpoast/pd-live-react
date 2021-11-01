@@ -25,7 +25,7 @@ import {
   useResizeColumns,
 } from 'react-table';
 
-import { toggleIncidentTableSettings, selectIncidentTableRows } from 'redux/incident_table/actions';
+import { selectIncidentTableRows } from 'redux/incident_table/actions';
 
 import CheckboxComponent from './subcomponents/CheckboxComponent';
 import EmptyIncidentsComponent from './subcomponents/EmptyIncidentsComponent';
@@ -60,12 +60,13 @@ const Delayed = ({ children, waitBeforeShow = 500 }) => {
 };
 
 const IncidentTableComponent = ({
-  toggleIncidentTableSettings,
   selectIncidentTableRows,
   incidentTableSettings,
+  incidentActions,
   incidents,
 }) => {
   const { incidentTableColumns } = incidentTableSettings;
+  const { status } = incidentActions;
   const { filteredIncidentsByQuery, fetchingIncidents } = incidents;
 
   // React Table Config
@@ -78,6 +79,7 @@ const IncidentTableComponent = ({
     [],
   );
 
+  // TODO: Verify if this is the cause of resolved incidents staying in the view
   const memoizedFilteredIncidentsByQuery = useMemo(
     () => filteredIncidentsByQuery, [filteredIncidentsByQuery],
   );
@@ -103,11 +105,12 @@ const IncidentTableComponent = ({
     rows,
     prepareRow,
     selectedFlatRows,
+    toggleAllRowsSelected,
     totalColumnsWidth,
   } = useTable(
     {
       columns: incidentTableColumns,
-      data: memoizedFilteredIncidentsByQuery,
+      data: filteredIncidentsByQuery, // Potential issue with Memoization hook?
       defaultColumn,
       // Prevent re-render when redux store updates
       autoResetPage: false,
@@ -179,6 +182,12 @@ const IncidentTableComponent = ({
     selectIncidentTableRows(true, selectedRows.length, selectedRows);
     return () => { };
   }, [selectedFlatRows]);
+
+  // Handle deselecting rows after incident action has completed
+  useEffect(() => {
+    // TODO: Get user feedback on this workflow
+    if (!status.includes('TOGGLE') && status.includes('COMPLETED')) toggleAllRowsSelected(false);
+  }, [status]);
 
   // Render components based on application state
   if (fetchingIncidents) {
@@ -266,11 +275,11 @@ const IncidentTableComponent = ({
 
 const mapStateToProps = (state) => ({
   incidentTableSettings: state.incidentTableSettings,
+  incidentActions: state.incidentActions,
   incidents: state.incidents,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  toggleIncidentTableSettings: () => dispatch(toggleIncidentTableSettings()),
   selectIncidentTableRows: (allSelected, selectedCount, selectedRows) => {
     dispatch(selectIncidentTableRows(allSelected, selectedCount, selectedRows));
   },
