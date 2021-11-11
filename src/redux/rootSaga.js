@@ -1,4 +1,6 @@
-import { all, put } from 'redux-saga/effects';
+import { all, put, take } from 'redux-saga/effects';
+
+import { REHYDRATE } from 'redux-persist/lib/constants';
 
 import {
   TOGGLE_DISPLAY_ACTION_ALERTS_MODAL_REQUESTED,
@@ -36,9 +38,9 @@ import {
 } from './log_entries/sagas';
 
 import {
-  toggleIncidentTableSettings,
-  saveIncidentTableSettings,
+  saveIncidentTable,
   updateIncidentTableColumns,
+  updateIncidentTableState,
   selectIncidentTableRows,
 } from './incident_table/sagas';
 
@@ -63,7 +65,11 @@ import {
 
 import { toggleActionAlertsModal, updateActionAlertsModal } from './action_alerts/sagas';
 
-import { getUsersAsync, getCurrentUserAsync } from './users/sagas';
+import {
+  userAcceptDisclaimer,
+  getUsersAsync,
+  getCurrentUserAsync,
+} from './users/sagas';
 
 import { getExtensionsAsync, mapServicesToExtensions } from './extensions/sagas';
 
@@ -74,7 +80,10 @@ import { getTeamsAsync } from './teams/sagas';
 import { getPrioritiesAsync } from './priorities/sagas';
 import { getEscalationPoliciesAsync } from './escalation_policies/sagas';
 
+import { toggleSettingsModal, clearLocalCache } from './settings/sagas';
+
 export default function* rootSaga() {
+  yield take(REHYDRATE); // Wait for rehydrate to prevent sagas from running with empty store
   yield all([
     // Query Settings
     toggleDisplayQuerySettings(),
@@ -104,9 +113,9 @@ export default function* rootSaga() {
     cleanRecentLogEntriesAsync(),
 
     // Incident Table
-    toggleIncidentTableSettings(),
-    saveIncidentTableSettings(),
+    saveIncidentTable(),
     updateIncidentTableColumns(),
+    updateIncidentTableState(),
     selectIncidentTableRows(),
 
     // Incident Actions
@@ -132,6 +141,7 @@ export default function* rootSaga() {
     updateActionAlertsModal(),
 
     // Users
+    userAcceptDisclaimer(),
     getUsersAsync(),
     getCurrentUserAsync(),
 
@@ -154,6 +164,10 @@ export default function* rootSaga() {
     // Response Plays
     getResponsePlaysAsync(),
     runResponsePlayAsync(),
+
+    // Settings
+    toggleSettingsModal(),
+    clearLocalCache(),
   ]);
 }
 

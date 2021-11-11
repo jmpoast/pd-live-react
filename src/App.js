@@ -5,17 +5,18 @@ import { Container } from 'react-bootstrap';
 import PDOAuth from 'util/pdoauth';
 import {
   PD_OAUTH_CLIENT_ID,
+  PD_OAUTH_CLIENT_SECRET,
   LOG_ENTRIES_POLLING_INTERVAL_SECONDS,
   LOG_ENTRIES_CLEARING_INTERVAL_SECONDS,
-} from 'util/constants';
+} from 'config/constants';
 
 import moment from 'moment';
 import 'moment/min/locales.min';
 
+import DisclaimerModalComponent from 'components/DisclaimerModal/DisclaimerModalComponent';
 import NavigationBarComponent from 'components/NavigationBar/NavigationBarComponent';
 import QuerySettingsComponent from 'components/QuerySettings/QuerySettingsComponent';
-import IncidentTableSettingsComponent
-  from 'components/IncidentTable/IncidentTableSettingsComponent';
+import SettingsModalComponent from 'components/SettingsModal/SettingsModalComponent';
 import IncidentTableComponent from 'components/IncidentTable/IncidentTableComponent';
 import IncidentActionsComponent from 'components/IncidentActions/IncidentActionsComponent';
 import ActionAlertsModalComponent from 'components/ActionAlertsModal/ActionAlertsModalComponent';
@@ -42,6 +43,7 @@ import 'App.scss';
 moment.locale(getLanguage());
 
 const App = ({
+  state,
   getServicesAsync,
   getTeamsAsync,
   getPrioritiesAsync,
@@ -58,7 +60,7 @@ const App = ({
   useEffect(() => {
     const token = sessionStorage.getItem('pd_access_token');
     if (!token) {
-      PDOAuth.login(PD_OAUTH_CLIENT_ID);
+      PDOAuth.login(PD_OAUTH_CLIENT_ID, PD_OAUTH_CLIENT_SECRET);
     }
   }, []);
 
@@ -73,10 +75,10 @@ const App = ({
     getCurrentUserAsync();
     getServicesAsync();
     getTeamsAsync();
-    getPrioritiesAsync();
     getEscalationPoliciesAsync();
     getExtensionsAsync();
     getResponsePlaysAsync();
+    getPrioritiesAsync();
     getIncidentsAsync();
   }, []);
 
@@ -99,13 +101,22 @@ const App = ({
     return () => clearInterval(clearingInterval);
   }, []);
 
+  // Display disclaimer modal
+  if (!state.users.userAcceptedDisclaimer) {
+    return (
+      <div className="App">
+        <DisclaimerModalComponent />
+      </div>
+    );
+  }
+
   return (
     <div className="App">
       <NavigationBarComponent />
       <Container fluid>
         <QuerySettingsComponent />
         <IncidentTableComponent />
-        <IncidentTableSettingsComponent />
+        <SettingsModalComponent />
         <IncidentActionsComponent />
         <ActionAlertsModalComponent />
         <CustomSnoozeModalComponent />
@@ -117,6 +128,8 @@ const App = ({
     </div>
   );
 };
+
+const mapStateToProps = (state) => ({ state });
 
 const mapDispatchToProps = (dispatch) => ({
   getServicesAsync: (teamIds) => dispatch(getServicesAsync(teamIds)),
@@ -132,4 +145,4 @@ const mapDispatchToProps = (dispatch) => ({
   cleanRecentLogEntriesAsync: () => dispatch(cleanRecentLogEntriesAsync()),
 });
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

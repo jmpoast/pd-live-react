@@ -1,59 +1,83 @@
-# PagerDuty Live (React)
+# PagerDuty Live
 
+This repository hosts the source code for PagerDuty Live, an open-source, single page application which enables organisations to manage their PagerDuty incidents in real-time through a unified console view.
 
-This repository hosts the source code for the React implementation of [PDLive](https://github.com/martindstone/PDlive).  
-It has been bootstrapped using [create-react-app](https://github.com/facebook/create-react-app).
+> Application URL: https://giranm.github.io/pd-live-react/
 
-### TODO
+## :warning: Disclaimer
 
-##### Functionality
+**This project is not officially supported by PagerDuty and therefore no issues can be reported to or resolved by PagerDuty Support.
+This is an open-source project designed to be used in a safe/test environment before users can leverage on their primary domains.**
 
-- [x] OAuth2 Login
-- [x] Escalate Incident
-- [x] Reassign Incident
-- [x] Add Responders to Incident
-- [x] Update Priority of Incident
-- [x] Custom snooze duration for Incident
-- [x] Merge Incidents
-- [x] Run Action (including Custom Incident Actions, Webhooks, and Response Plays)
-- [x] Implement `react-table` (e.g. multisort, resizeable columns, selectable rows, etc)
-- [x] Global Search against incident data
-- [x] Formatting of cells (e.g. locale date format, status, etc)
-- [x] Add loading modal when fetching data from `/incidents` endpoint
-- [x] Infinite scrolling using `react-window`
-- [ ] Store query/settings using session data
+- Full Disclaimer: https://www.termsfeed.com/live/68d1a0f2-9e68-47d0-9623-68afe0c31f6d
+- Further details on roadmap functionality, bugs, etc can be viewed on the [wiki](https://github.com/giranm/pd-live-react/wiki).
+- For any issues, please raise a [GitHub issue](https://github.com/giranm/pd-live-react/issues/new) which can be tracked accordingly.
 
-##### Code
+## Screenshot
 
-- [x] Linting + Formatting (via `prettier-eslint`)
-- [x] PagerDuty Themeing
-- [ ] Tests (including suitable framework)
-- [ ] Deployment/Bundling Steps
-
-##### Bugs (Known)
-
-- [x] Minor display bugs (incident resolution and creation duplication)
-- [x] Slow query performance for large number of incidents (due to 100 results limit on API)
-- [x] 429 (rate throttling) issues when requests notes for each incident (from large incident query above)
-- [x] Empty Incident component rendered before table (for non-empty incidents list)
-- [x] "Fetching notes" displayed when new incidents are added to the table (i.e. notes have not been fetched)
-- [ ] Selected incidents which disappear post-action keeps state (e.g. enablePostActions remains true)
-- [ ] External system sync (post-action) button (e.g. disabled correctly, but enabled on incident reselect due to incident store not refreshed)
-- [ ] Resolved incidents still appear in the table after a period (most likely memoization of react-table)
+<kbd>
+<img width="1625" alt="Screenshot 2021-11-05 at 18 35 16" src="https://user-images.githubusercontent.com/20474443/140561598-d771ea60-157c-4fc6-aaa7-af31765f955f.png">
+</kbd>
 
 ## Local Development
 
-1. Install [NodeJS v11.10.1](https://nodejs.org/tr/blog/release/v11.10.1/) (or switch using [`asdf install`](https://github.com/asdf-vm/asdf))
+1. Install [NodeJS v16.13](https://nodejs.org/tr/blog/release/v16.13.0/) (or switch using [`asdf install`](https://github.com/asdf-vm/asdf))
 
-2. Install `craco` via `npm install @craco/craco --save --global`  
+2. Install `craco` via `$ npm install @craco/craco --save --global`  
    (NB - you may need to reload terminal session to use the alias)
 
-3. `git clone` repo to desired destination and `cd` into directory.
+3. `$ git clone` repo to desired destination and `$ cd pd-live-react` into directory.
 
-4. _(Optional unless you are not serving at http://localhost:3000)_
+4. Install dependencies with `$ npm install` and run application locally using `$ npm start`  
+   (e.g. app will be available under http://localhost:3000/ - be sure to remove pd-live-react suffix)
 
-   - Go into PD developer mode, create a new app, add OAuth 2.0 and add a URL to the base of wherever you are serving the app
-   - Update `PD_OAUTH_CLIENT_ID` within `src/util/constants.js`, which is required for `PDOAuth.login()`
+## Deployment (GitHub Pages)
 
-5. Install dependencies with `npm install` and run application locally using `npm start`  
-   (e.g. navigate to http://localhost:3000/ to use the app; be sure to remove pd-live-react suffix)
+These steps assume you have forked the repo to a new GitHub repo and wish to deploy using [GitHub Pages](https://github.com/gitname/react-gh-pages).
+
+1. Modify `homepage` within `package.json` accordingly (e.g. https://[GIT_USERNAME].github.io/pd-live-react/)
+
+2. PagerDuty Configuration
+
+   - Within PagerDuty developer mode, [register a new app](https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTY5-register-an-app)
+   - [Add OAuth 2.0 workflow](<(https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTcz-o-auth-2-0-functionality#add-oauth-20-functionality-to-your-app)>) to the app, and update the URL to the base of the app to the same in step #1.
+
+3. Update your PagerDuty Client ID and Secret under `src/config/constants.js` (consider external API call)  
+   (Don't forget to add and commit changes!)
+
+4. (_Optional_) Create `gh-pages` branch for tracking
+
+   - `$ git checkout -b gh-pages`
+   - `$ git branch --set-upstream gh-pages origin/gh-pages`
+   - `$ git push`
+   - `$ git checkout -`
+
+5. Install `gh-pages` module via `$ npm install gh-pages --save-dev --global`
+
+6. Deploy application to GitHub Pages via `$ npm run deploy`
+
+7. Application will be accessible under the homepage specified in step #1.
+
+## License
+
+MIT License
+
+Copyright (c) 2021 Giran Moodley
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

@@ -12,12 +12,10 @@ import {
 
 import { SELECT_INCIDENT_TABLE_ROWS_REQUESTED } from 'redux/incident_table/actions';
 
-import { UPDATE_INCIDENTS_LIST } from 'redux/incidents/actions';
-
-import { getIncidentByIdRequest } from 'redux/incidents/sagas';
+import { getIncidentByIdRequest, updateIncidentsList } from 'redux/incidents/sagas';
 
 import { selectPriorities } from 'redux/priorities/selectors';
-import { selectIncidentTableSettings } from 'redux/incident_table/selectors';
+import { selectIncidentTable } from 'redux/incident_table/selectors';
 
 import {
   TRIGGERED,
@@ -637,7 +635,7 @@ export function* syncWithExternalSystemAsync() {
 export function* syncWithExternalSystem(action) {
   try {
     const { incidents: selectedIncidents, webhook, displayModal } = action;
-    const { allSelected, selectedCount } = yield select(selectIncidentTableSettings);
+    const { allSelected, selectedCount } = yield select(selectIncidentTable);
 
     // Build individual requests as the endpoint supports singular PUT
     const externalSystemSyncRequests = selectedIncidents.map((incident) => {
@@ -668,7 +666,9 @@ export function* syncWithExternalSystem(action) {
     const responses = yield all(externalSystemSyncRequests);
     if (responses.every((response) => response.ok)) {
       // Re-request incident data as external_reference is not available under ILE
-      const updatedIncidentRequests = selectedIncidents.map((incident) => getIncidentByIdRequest(incident.id));
+      const updatedIncidentRequests = selectedIncidents.map(
+        (incident) => getIncidentByIdRequest(incident.id),
+      );
       const updatedIncidentResponses = yield all(updatedIncidentRequests);
       const updatedIncidents = updatedIncidentResponses.map((response) => response.data.incident);
 
@@ -685,11 +685,12 @@ export function* syncWithExternalSystem(action) {
         selectedRows: updatedSelectedRows,
       });
 
-      // TODO: Update incidents in store to prevent further display bugs (not sure why not dispatching)
-      yield put({
-        type: UPDATE_INCIDENTS_LIST,
+      // Call Saga directly to update list (dispatch didn't work for some reason)
+      yield updateIncidentsList({
+        addList: [],
+        removeList: [],
         updateList: updatedSelectedRows.map((incident) => ({
-          incident, // Artificially re-create updateItem object schema
+          incident: { ...incident },
         })),
       });
 

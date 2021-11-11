@@ -1,12 +1,12 @@
+/* eslint-disable camelcase */
 import moment from 'moment';
 
-import { Badge } from 'react-bootstrap';
+import {
+  Badge,
+} from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faExclamationTriangle,
-  faShieldAlt,
-  faCheckCircle,
   faChevronUp,
   faChevronDown,
 } from '@fortawesome/free-solid-svg-icons';
@@ -14,17 +14,16 @@ import {
 import PersonInitialsComponent
   from 'components/IncidentTable/subcomponents/PersonInitialsComponents';
 
-import { DATE_FORMAT } from 'util/constants';
+import StatusComponent from 'components/IncidentTable/subcomponents/StatusComponent';
+
+import { DATE_FORMAT } from 'config/constants';
 import {
-  TRIGGERED,
-  ACKNOWLEDGED,
-  RESOLVED,
   HIGH,
   LOW,
 } from 'util/incidents';
 import {
   getObjectsFromList,
-} from './helpers';
+} from 'util/helpers';
 
 // Define all possible columns for incidents under PagerDuty's API
 export const availableIncidentTableColumns = [
@@ -33,7 +32,7 @@ export const availableIncidentTableColumns = [
     Header: '#',
     sortable: true,
     minWidth: 80,
-    width: 80,
+    // width: 80,
     Cell: ({ row }) => (
       <a href={row.original.html_url} target="_blank" rel="noopener noreferrer">
         {row.original.incident_number}
@@ -45,7 +44,7 @@ export const availableIncidentTableColumns = [
     Header: 'Title',
     sortable: true,
     minWidth: 400,
-    width: 800,
+    // width: 800,
     Cell: ({ row }) => (
       <a href={row.original.html_url} target="_blank" rel="noopener noreferrer">
         {row.original.title}
@@ -57,14 +56,14 @@ export const availableIncidentTableColumns = [
     Header: 'Description',
     sortable: true,
     minWidth: 400,
-    width: 800,
+    // width: 800,
   },
   {
     accessor: 'created_at',
     Header: 'Created At',
     sortable: true,
     minWidth: 180,
-    width: 180,
+    // width: 180,
     Cell: ({ row }) => {
       const formattedDate = moment(row.original.created_at).format(DATE_FORMAT);
       return formattedDate;
@@ -74,47 +73,24 @@ export const availableIncidentTableColumns = [
     accessor: 'status',
     Header: 'Status',
     sortable: true,
-    minWidth: 160,
-    width: 160,
-    maxWidth: 160,
-    Cell: ({ row }) => {
-      const { status } = row.original;
-      let elem;
-      if (status === TRIGGERED) {
-        elem = (
-          <Badge className="status-badge" variant="danger">
-            <FontAwesomeIcon icon={faExclamationTriangle} /> Triggered
-          </Badge>
-        );
-      } else if (status === ACKNOWLEDGED) {
-        elem = (
-          <Badge className="status-badge" variant="warning">
-            <FontAwesomeIcon icon={faShieldAlt} /> Acknowledged
-          </Badge>
-        );
-      } else if (status === RESOLVED) {
-        elem = (
-          <Badge className="status-badge" variant="success">
-            <FontAwesomeIcon icon={faCheckCircle} /> Resolved
-          </Badge>
-        );
-      }
-      return elem;
-    },
+    minWidth: 100,
+    // width: 160,
+    // maxWidth: 160,
+    Cell: ({ row }) => <StatusComponent status={row.original.status} />,
   },
   {
     accessor: 'incident_key',
     Header: 'Incident Key',
     sortable: true,
     minWidth: 300,
-    width: 300,
+    // width: 300,
   },
   {
     accessor: 'service.summary',
     Header: 'Service',
     sortable: true,
     minWidth: 300,
-    width: 300,
+    // width: 300,
     Cell: ({ row }) => (
       <a href={row.original.service.html_url} target="_blank" rel="noopener noreferrer">
         {row.original.service.summary}
@@ -128,7 +104,7 @@ export const availableIncidentTableColumns = [
     Header: 'Assignees',
     sortable: true,
     minWidth: 160,
-    width: 160,
+    // width: 160,
     Cell: ({ row }) => {
       const { assignments } = row.original.assignments
         ? row.original
@@ -144,7 +120,7 @@ export const availableIncidentTableColumns = [
     Header: 'Last Status Change At',
     sortable: true,
     minWidth: 220,
-    width: 220,
+    // width: 220,
     Cell: ({ row }) => {
       const formattedDate = moment(row.original.last_status_change_at).format(DATE_FORMAT);
       return formattedDate;
@@ -155,14 +131,14 @@ export const availableIncidentTableColumns = [
     Header: 'Num Alerts',
     sortable: true,
     minWidth: 130,
-    width: 130,
+    // width: 130,
   },
   {
     accessor: 'escalation_policy.summary',
     Header: 'Escalation Policy',
     sortable: true,
     minWidth: 200,
-    width: 200,
+    // width: 200,
     Cell: ({ row }) => (
       <a href={row.original.escalation_policy.html_url} target="_blank" rel="noopener noreferrer">
         {row.original.escalation_policy.summary}
@@ -176,7 +152,7 @@ export const availableIncidentTableColumns = [
     Header: 'Teams',
     sortable: true,
     minWidth: 200,
-    width: 200,
+    // width: 200,
     Cell: ({ row }) => {
       const { teams } = row.original.teams
         ? row.original
@@ -207,7 +183,7 @@ export const availableIncidentTableColumns = [
     Header: 'Acknowledgments',
     sortable: true,
     minWidth: 250,
-    width: 250,
+    // width: 250,
     Cell: ({ row }) => {
       const { acknowledgements } = row.original.acknowledgements
         ? row.original
@@ -223,7 +199,7 @@ export const availableIncidentTableColumns = [
     Header: 'Last Status Change By',
     sortable: true,
     minWidth: 250,
-    width: 250,
+    // width: 250,
     Cell: ({ row }) => (
       <a
         href={row.original.last_status_change_by.html_url}
@@ -254,8 +230,13 @@ export const availableIncidentTableColumns = [
     Header: 'Priority',
     sortable: true,
     minWidth: 90,
-    width: 90,
-    sortFunction: (row1, row2) => null, // TBD - this needs to be custom implemented
+    // width: 90,
+    sortType: (row1, row2) => {
+      const row1Rank = row1.original.priority ? row1.original.priority.order : 0;
+      const row2Rank = row2.original.priority ? row2.original.priority.order : 0;
+      const order = row1Rank > row2Rank ? 1 : -1;
+      return order;
+    },
   },
   // TODO: incidents_responders, responder_requests, subscriber_requests
   {
@@ -263,7 +244,7 @@ export const availableIncidentTableColumns = [
     Header: 'Urgency',
     sortable: true,
     minWidth: 120,
-    width: 120,
+    // width: 120,
     Cell: ({ row }) => {
       const { urgency } = row.original;
       let elem;
@@ -288,14 +269,14 @@ export const availableIncidentTableColumns = [
     Header: 'Incident ID',
     sortable: true,
     minWidth: 160,
-    width: 160,
+    // width: 160,
   },
   {
     accessor: 'summary',
     Header: 'Summary',
     sortable: true,
     minWidth: 400,
-    width: 800,
+    // width: 800,
   },
   {
     accessor: (incident) => {
@@ -309,8 +290,39 @@ export const availableIncidentTableColumns = [
     Header: 'Latest Note',
     sortable: true,
     minWidth: 200,
-    width: 200,
-    maxWidth: 500,
+    // width: 200,
+    // maxWidth: 500,
+  },
+  {
+    accessor: (incident) => (incident.external_references
+      ? incident.external_references.map((ext) => ext.external_id).join(', ')
+      : 'N/A'),
+    Header: 'External References',
+    sortable: true,
+    minWidth: 200,
+    Cell: ({ row }) => {
+      let external_references = [];
+      if (row.original && row.original.external_references) {
+        external_references = row.original.external_references;
+      }
+      if (external_references.length > 0) {
+        return (
+          <div>
+            {external_references.map((ext, idx, { length }) => (
+              <a
+                idx={ext.id}
+                href={ext.external_url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {`${ext.summary} (${ext.external_id})`}{length - 1 === idx ? null : ', '}
+              </a>
+            ))}
+          </div>
+        );
+      }
+      return '--';
+    },
   },
 ];
 

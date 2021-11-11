@@ -1,14 +1,13 @@
 import produce from 'immer';
 
-import { getIncidentTableColumns } from 'util/incident-table-columns';
 import {
-  TOGGLE_INCIDENT_TABLE_SETTINGS_REQUESTED,
-  TOGGLE_INCIDENT_TABLE_SETTINGS_COMPLETED,
   SAVE_INCIDENT_TABLE_SETTINGS_REQUESTED,
   SAVE_INCIDENT_TABLE_SETTINGS_COMPLETED,
   SAVE_INCIDENT_TABLE_SETTINGS_ERROR,
   UPDATE_INCIDENT_TABLE_COLUMNS_REQUESTED,
   UPDATE_INCIDENT_TABLE_COLUMNS_COMPLETED,
+  UPDATE_INCIDENT_TABLE_STATE_REQUESTED,
+  UPDATE_INCIDENT_TABLE_STATE_COMPLETED,
   SELECT_INCIDENT_TABLE_ROWS_REQUESTED,
   SELECT_INCIDENT_TABLE_ROWS_COMPLETED,
 } from './actions';
@@ -24,18 +23,9 @@ const defaultColumnNames = [
   'Latest Note',
 ];
 
-const incidentTableSettings = produce(
+const incidentTable = produce(
   (draft, action) => {
     switch (action.type) {
-      case TOGGLE_INCIDENT_TABLE_SETTINGS_REQUESTED:
-        draft.status = TOGGLE_INCIDENT_TABLE_SETTINGS_REQUESTED;
-        break;
-
-      case TOGGLE_INCIDENT_TABLE_SETTINGS_COMPLETED:
-        draft.displayIncidentTableSettings = action.displayIncidentTableSettings;
-        draft.status = TOGGLE_INCIDENT_TABLE_SETTINGS_COMPLETED;
-        break;
-
       case SAVE_INCIDENT_TABLE_SETTINGS_REQUESTED:
         draft.status = SAVE_INCIDENT_TABLE_SETTINGS_REQUESTED;
         break;
@@ -54,8 +44,17 @@ const incidentTableSettings = produce(
         break;
 
       case UPDATE_INCIDENT_TABLE_COLUMNS_COMPLETED:
-        draft.incidentTableColumns = action.incidentTableColumns;
+        draft.incidentTableColumnsNames = action.incidentTableColumnsNames;
         draft.status = UPDATE_INCIDENT_TABLE_COLUMNS_COMPLETED;
+        break;
+
+      case UPDATE_INCIDENT_TABLE_STATE_REQUESTED:
+        draft.status = UPDATE_INCIDENT_TABLE_STATE_REQUESTED;
+        break;
+
+      case UPDATE_INCIDENT_TABLE_STATE_COMPLETED:
+        draft.incidentTableState = action.incidentTableState;
+        draft.status = UPDATE_INCIDENT_TABLE_STATE_COMPLETED;
         break;
 
       case SELECT_INCIDENT_TABLE_ROWS_REQUESTED:
@@ -74,8 +73,8 @@ const incidentTableSettings = produce(
     }
   },
   {
-    incidentTableColumns: getIncidentTableColumns(defaultColumnNames),
-    displayIncidentTableSettings: false,
+    incidentTableState: {},
+    incidentTableColumnsNames: defaultColumnNames,
     allSelected: false,
     selectedCount: 0,
     selectedRows: [],
@@ -85,4 +84,4 @@ const incidentTableSettings = produce(
   },
 );
 
-export default incidentTableSettings;
+export default incidentTable;

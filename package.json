@@ -1,6 +1,6 @@
 {
   "name": "pd-live-react",
-  "homepage": "https://giranm.github.io/pd-live-react/",
+  "homepage": "https://giranm.github.io/pd-live-react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -21,9 +21,10 @@
     "font-awesome": "^4.7.0",
     "fuse.js": "^6.4.6",
     "immer": "^9.0.6",
+    "lodash": "^4.17.21",
     "mezr": "^0.6.2",
     "moment": "^2.29.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^6.0.1",
     "prettier-eslint-cli": "^5.0.1",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.4",
@@ -36,6 +37,7 @@
     "react-table": "^7.7.0",
     "react-window": "^1.8.6",
     "redux": "^4.1.1",
+    "redux-persist": "^6.0.0",
     "redux-saga": "^1.1.3",
     "styled-components": "^5.3.1",
     "use-debounce": "^7.0.0",
@@ -46,7 +48,9 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "craco eject",
-    "format": "npx prettier-eslint --write \"{,!(node_modules)/**/}*.{js,jsx}\""
+    "format": "npx prettier-eslint --write \"{,!(node_modules)/**/}*.{js,jsx}\"",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -75,6 +79,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "gh-pages": "^3.2.3",
     "prettier": "^2.4.1",
     "resolve-url-loader": "^4.0.0"
   }

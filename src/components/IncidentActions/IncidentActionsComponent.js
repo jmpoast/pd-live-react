@@ -66,7 +66,7 @@ import { getObjectsFromListbyKey } from 'util/helpers';
 const animatedComponents = makeAnimated();
 
 const IncidentActionsComponent = ({
-  incidentTableSettings,
+  incidentTable,
   incidentActions,
   incidents,
   priorities,
@@ -88,7 +88,7 @@ const IncidentActionsComponent = ({
   syncWithExternalSystem,
 }) => {
   const { fetchingIncidents, filteredIncidentsByQuery } = incidents;
-  const { selectedCount, selectedRows } = incidentTableSettings;
+  const { selectedCount, selectedRows } = incidentTable;
   const resolvedIncidents = filterIncidentsByField(selectedRows, 'status', [RESOLVED]);
   const unresolvedIncidents = filterIncidentsByField(selectedRows, 'status', [
     TRIGGERED,
@@ -111,6 +111,7 @@ const IncidentActionsComponent = ({
     highUrgencyIncidents.length &&
     selectedIncident.status !== RESOLVED
   );
+  const enablePriorityAction = !(selectedCount >= 1);
 
   // Create internal variables and state for escalate
   const selectedEscalationPolicyId = selectedIncident ? selectedRows[0].escalation_policy.id : null;
@@ -177,25 +178,29 @@ const IncidentActionsComponent = ({
 
   // Identify extensions (ext systems) that have already been sync'd with on the selected incident
   // NB - need intermediate variables to stop race condition of empty array
-  const externalSystems = selectedIncident
-    ? externalSystemsTemp.map((serviceExtension) => {
-      const tempServiceExtension = { ...serviceExtension };
-      let result;
-      result = selectedIncident.external_references
-        ? selectedIncident.external_references.find(
-          ({ webhook }) => webhook.id === serviceExtension.id,
-        )
-        : null;
-      if (result) {
-        tempServiceExtension.synced = true;
-        tempServiceExtension.extension_label
+  const [externalSystems, setExternalSystems] = useState([]);
+  useEffect(() => {
+    const tempExternalSystems = selectedIncident
+      ? externalSystemsTemp.map((serviceExtension) => {
+        const tempServiceExtension = { ...serviceExtension };
+        let result;
+        result = selectedIncident.external_references
+          ? selectedIncident.external_references.find(
+            ({ webhook }) => webhook.id === serviceExtension.id,
+          )
+          : null;
+        if (result) {
+          tempServiceExtension.synced = true;
+          tempServiceExtension.extension_label
           = `Synced with ${result.webhook.summary} (${result.external_id})`;
-      } else {
-        tempServiceExtension.synced = false;
-      }
-      return tempServiceExtension;
-    })
-    : [];
+        } else {
+          tempServiceExtension.synced = false;
+        }
+        return tempServiceExtension;
+      })
+      : [];
+    setExternalSystems(tempExternalSystems);
+  }, [displayRunActions, selectedIncident]);
 
   return (
     <div>
@@ -253,7 +258,6 @@ const IncidentActionsComponent = ({
                 </>
               )}
               disabled={enableEscalationAction}
-              show={displayEscalate}
               onClick={() => toggleEscalate(!displayEscalate)}
             >
               {selectedEscalationRules.map((escalation_rule, idx) => {
@@ -307,7 +311,6 @@ const IncidentActionsComponent = ({
                 </>
               )}
               disabled={enableActions}
-              show={displaySnooze}
               onClick={() => toggleSnooze(!displaySnooze)}
             >
               {Object.keys(SNOOZE_TIMES).map((duration) => (
@@ -349,7 +352,7 @@ const IncidentActionsComponent = ({
             <DropdownButton
               as={ButtonGroup}
               className="action-button"
-              variant={enableActions ? 'outline-secondary' : 'light'}
+              variant={enablePriorityAction ? 'outline-secondary' : 'light'}
               drop="up"
               title={(
                 <>
@@ -359,8 +362,7 @@ const IncidentActionsComponent = ({
                   Update Priority
                 </>
               )}
-              disabled={enableActions}
-              show={displayPriority}
+              disabled={enablePriorityAction}
               onClick={() => togglePriority(!displayPriority)}
             >
               {priorities.map((priority) => (
@@ -419,6 +421,7 @@ const IncidentActionsComponent = ({
                   <Dropdown.Item>
                     <Select
                       className="response-play-dropdown"
+                      menuPlacement="top"
                       components={animatedComponents}
                       options={selectListResponsePlays}
                       onChange={(selectedResponsePlay) => {
@@ -481,7 +484,7 @@ const IncidentActionsComponent = ({
 };
 
 const mapStateToProps = (state) => ({
-  incidentTableSettings: state.incidentTableSettings,
+  incidentTable: state.incidentTable,
   incidentActions: state.incidentActions,
   incidents: state.incidents,
   priorities: state.priorities.priorities,
